@@ -70,8 +70,9 @@ SELECT o.OrderID
 			WHEN MONTH(OrderDate) BETWEEN 9 AND 12 THEN 3
 		END AS 'Треть года'
 	,c.CustomerName
+	,ol.PickingCompletedWhen
 FROM Sales.Orders o
-	INNER JOIN Sales.OrderLines ol On ol.OrderID=o.OrderID AND (UnitPrice>100 OR  Quantity>20)
+	INNER JOIN Sales.OrderLines ol On ol.OrderID=o.OrderID AND (UnitPrice>100 OR  Quantity>20) AND ol.PickingCompletedWhen IS NOT NULL
 	INNER JOIN Sales.Customers c ON c.CustomerID=o.CustomerID
 ORDER BY datepart(quarter, OrderDate)
 	,CASE 
@@ -94,7 +95,7 @@ SELECT o.OrderID
 		END AS 'Треть года'
 	,c.CustomerName
 FROM Sales.Orders o
-	INNER JOIN Sales.OrderLines ol On ol.OrderID=o.OrderID AND (UnitPrice>100 OR  Quantity>20)
+	INNER JOIN Sales.OrderLines ol On ol.OrderID=o.OrderID AND (UnitPrice>100 OR  Quantity>20) AND ol.PickingCompletedWhen IS NOT NULL
 	INNER JOIN Sales.Customers c ON c.CustomerID=o.CustomerID
 ORDER BY datepart(quarter, OrderDate)
 	,CASE 
@@ -136,15 +137,15 @@ FROM Purchasing.Suppliers s
 Сделать без подзапросов.
 */
 
-SELECT TOP 10 i.InvoiceID
-	,InvoiceDate
+SELECT TOP 10 o.OrderID
+	,OrderDate
 	,c.CustomerName
 	,p.FullName as SalesName
-FROM Sales.Invoices i
-	INNER JOIN Sales.InvoiceLines il ON il.InvoiceID=i.InvoiceID
-	INNER JOIN Sales.Customers c ON c.CustomerID=i.CustomerID
-	INNER JOIN Application.People p ON p.PersonID=i.SalespersonPersonID
-ORDER BY InvoiceDate desc
+FROM  Sales.Orders o
+	INNER JOIN Sales.Customers c ON c.CustomerID=o.CustomerID
+	INNER JOIN Application.People p ON p.PersonID=o.SalespersonPersonID
+ORDER BY OrderDate desc
+
 
 /*
 6. Все ид и имена клиентов и их контактные телефоны,
